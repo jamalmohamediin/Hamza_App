@@ -605,7 +605,9 @@
             const slip = document.getElementById('repair-slip');
             const padding = 20;
             const scale = Math.min(1, (window.innerWidth - padding) / slip.offsetWidth);
-            wrapper.style.transform = `scale(${scale})`;
+            const scaledWidth = slip.offsetWidth * scale;
+            const offsetX = Math.max(0, (window.innerWidth - scaledWidth) / 2);
+            wrapper.style.transform = `translateX(${offsetX}px) scale(${scale})`;
         }
 
         function setupSignatureCanvas() {
