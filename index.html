@@ -697,10 +697,16 @@
 
         function resizeSignatureCanvas() {
             const canvas = document.getElementById('signature-canvas');
-            const ctx = canvas.getContext('2d');
             const ratio = window.devicePixelRatio || 1;
-            canvas.width = Math.floor(canvas.offsetWidth * ratio);
-            canvas.height = Math.floor(canvas.offsetHeight * ratio);
+            const newWidth = Math.floor(canvas.offsetWidth * ratio);
+            const newHeight = Math.floor(canvas.offsetHeight * ratio);
+
+            if (canvas.width === newWidth && canvas.height === newHeight) return;
+
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+
+            const ctx = canvas.getContext('2d');
             ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
             ctx.lineWidth = 2;
             ctx.lineCap = 'round';
