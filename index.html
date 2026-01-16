@@ -24,6 +24,12 @@
             overflow-x: hidden;
         }
 
+        @media (max-width: 768px) {
+            body {
+                padding: 10px 0;
+            }
+        }
+
         /* --- Main Paper --- */
         .slip-container {
             width: 850px;
@@ -335,9 +341,7 @@
 
         @media (max-width: 900px) {
             #slip-scale {
-                width: 100%;
-                display: flex;
-                justify-content: center;
+                transform-origin: top center;
             }
         }
 
@@ -603,18 +607,9 @@
         function updateScale() {
             const wrapper = document.getElementById('slip-scale');
             const slip = document.getElementById('repair-slip');
-            const controls = document.querySelector('.controls');
             const padding = 20;
-            const availableWidth = window.innerWidth - padding;
-            const availableHeight = window.innerHeight - (controls ? controls.offsetHeight : 0) - padding * 2;
-            const scale = Math.min(
-                1,
-                availableWidth / slip.offsetWidth,
-                availableHeight / slip.offsetHeight
-            );
-            const scaledWidth = slip.offsetWidth * scale;
-            const offsetX = Math.max(0, (window.innerWidth - scaledWidth) / 2);
-            wrapper.style.transform = `translateX(${offsetX}px) scale(${scale})`;
+            const scale = Math.min(1, (window.innerWidth - padding) / slip.offsetWidth);
+            wrapper.style.transform = `scale(${scale})`;
         }
 
         function setupSignatureCanvas() {
