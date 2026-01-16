@@ -617,6 +617,32 @@
             wrapper.style.transform = `scale(${scale})`;
         }
 
+        function saveData() {
+            const inputs = Array.from(document.querySelectorAll('.slip-container input[type="text"]')).map(i => i.value);
+            const checks = Array.from(document.querySelectorAll('.box-square')).map(i => i.innerHTML);
+            const signature = document.getElementById('signature-canvas').toDataURL();
+            
+            const data = { inputs, checks, signature };
+            localStorage.setItem('repair_slip_data', JSON.stringify(data));
+        }
+
+        function loadData() {
+            const data = JSON.parse(localStorage.getItem('repair_slip_data'));
+            if (!data) return;
+
+            const inputs = document.querySelectorAll('.slip-container input[type="text"]');
+            data.inputs.forEach((val, i) => { if (inputs[i]) inputs[i].value = val; });
+
+            const checks = document.querySelectorAll('.box-square');
+            data.checks.forEach((val, i) => { if (checks[i]) checks[i].innerHTML = val; });
+
+            if (data.signature && data.signature.length > 20) {
+                const img = new Image();
+                img.onload = () => document.getElementById('signature-canvas').getContext('2d').drawImage(img, 0, 0);
+                img.src = data.signature;
+            }
+        }
+
         function setupSignatureCanvas() {
             const canvas = document.getElementById('signature-canvas');
             if (canvas.dataset.ready === 'true') return;
@@ -660,6 +686,7 @@
 
             function stop(e) {
                 drawing = false;
+                saveData();
                 e.preventDefault();
             }
 
@@ -686,6 +713,7 @@
                         const x = (canvas.offsetWidth - w) / 2;
                         const y = (canvas.offsetHeight - h) / 2;
                         ctx.drawImage(img, x, y, w, h);
+                        saveData();
                     };
                     img.src = reader.result;
                 };
@@ -700,8 +728,16 @@
             const ratio = window.devicePixelRatio || 1;
             const newWidth = Math.floor(canvas.offsetWidth * ratio);
             const newHeight = Math.floor(canvas.offsetHeight * ratio);
-
+            
             if (canvas.width === newWidth && canvas.height === newHeight) return;
+
+            // Save current content before resizing
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            if (canvas.width > 0 && canvas.height > 0) {
+                tempCanvas.getContext('2d').drawImage(canvas, 0, 0);
+            }
 
             canvas.width = newWidth;
             canvas.height = newHeight;
@@ -711,18 +747,23 @@
             ctx.lineWidth = 2;
             ctx.lineCap = 'round';
             ctx.strokeStyle = '#111';
+
+            // Restore content
+            if (tempCanvas.width > 0) ctx.drawImage(tempCanvas, 0, 0, newWidth / ratio, newHeight / ratio);
         }
 
         function clearSignature() {
             const canvas = document.getElementById('signature-canvas');
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+            saveData();
         }
 
         function removeSignatureImage() {
             clearSignature();
             const upload = document.getElementById('signature-upload');
             upload.value = '';
+            saveData();
         }
 
         setToday();
@@ -733,9 +774,16 @@
         updateScale();
         setupSignatureCanvas();
         resizeSignatureCanvas();
+        loadData(); // Load saved data on startup
+
+        // Auto-save on any text input change
+        document.querySelector('.slip-container').addEventListener('input', (e) => {
+            if (e.target.tagName === 'INPUT') saveData();
+        });
 
         function toggleX(el) {
             el.innerHTML = el.innerHTML === "X" ? "" : "X";
+            saveData();
         }
 
         function sanitizeFilename(text) {
