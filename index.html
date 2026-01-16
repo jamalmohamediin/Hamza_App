@@ -607,8 +607,13 @@
         function updateScale() {
             const wrapper = document.getElementById('slip-scale');
             const slip = document.getElementById('repair-slip');
-            const padding = 20;
-            const scale = Math.min(1, (window.innerWidth - padding) / slip.offsetWidth);
+
+            // Use the body's content width, which respects CSS padding.
+            // Subtract a small amount for breathing room on mobile.
+            const breathingRoom = window.innerWidth < 900 ? 20 : 0; // Creates a 10px margin on each side
+            const availableWidth = document.body.clientWidth - breathingRoom;
+            const scale = Math.min(1, availableWidth / slip.offsetWidth);
+
             wrapper.style.transform = `scale(${scale})`;
         }
 
