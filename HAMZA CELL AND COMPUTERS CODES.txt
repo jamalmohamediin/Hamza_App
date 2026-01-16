@@ -1,0 +1,519 @@
+Here is the updated Digital Form.
+
+Changes Implemented:
+
+Header: The rounded border is now restricted to the text area (Title, Address, Phones). The "REPAIR SLIP" badge and "5581" are outside to the right, matching the original image layout.
+
+Date & Tel No Alignment: I have structured the input section so "Tel No" sits directly below "Date" in a dedicated right-hand column, ensuring perfect vertical alignment.
+
+Rounded Rows (Pills):
+
+Fault / Model is now in its own isolated rounded border.
+
+IMEI / Make is now in its own isolated rounded border.
+
+The Description & Total section is in a separate block below.
+
+Vertical Line & Alignment: Even though the rows are separated, I used fixed percentage widths (78% Left / 22% Right) for all sections. This ensures the vertical line appears to run straight down through the gaps, and Model/Make/Total are positioned on the left side of that line.
+
+HTML & CSS Code
+code
+Html
+play_circle
+download
+content_copy
+expand_less
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hamza Repair Slip</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Oswald:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        body {
+            background-color: #e6e6e6;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+        }
+
+        /* --- Main Paper --- */
+        .slip-container {
+            width: 850px;
+            background-color: #fff;
+            padding: 10px 30px 20px 30px;
+            box-sizing: border-box;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 1px solid #ccc;
+        }
+
+        /* --- Header Section --- */
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            margin-top: 10px;
+        }
+
+        /* The Rounded Box containing Title + Contact */
+        .header-box {
+            width: 78%; /* Leaves space for the badge on the right */
+            border: 3px solid #222;
+            border-radius: 25px;
+            padding: 10px 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-title-row {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 46px; /* Slightly adjusted to fit */
+            text-transform: uppercase;
+            margin: 0;
+            letter-spacing: 1px;
+            color: #222;
+            line-height: 1;
+        }
+
+        .sub-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-top: 2px;
+            color: #333;
+            text-align: center;
+        }
+
+        /* Info Row: Address + Phones */
+        .header-info-row {
+            display: flex;
+            justify-content: flex-start; 
+            align-items: flex-start;
+            margin-top: 5px;
+        }
+
+        .info-left {
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.3;
+            width: 40%;
+        }
+
+        .info-right {
+            text-align: left;
+            width: 60%;
+            padding-left: 10px;
+        }
+
+        .phone-text {
+            font-size: 20px; 
+            font-weight: 900;
+            line-height: 1.4;
+            color: #111;
+        }
+
+        /* Right Side: Badge + Stamp (OUTSIDE the border) */
+        .header-side {
+            width: 20%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            position: relative;
+        }
+
+        .repair-badge {
+            background-color: #222;
+            color: #fff;
+            padding: 5px 10px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 10px;
+            font-family: 'Oswald', sans-serif;
+            border: 2px solid #222;
+            white-space: nowrap;
+        }
+        
+        .stamp-number {
+            margin-top: 40px; /* Push it down */
+            margin-right: 10px;
+            color: #cc3333;
+            font-family: 'Courier New', monospace;
+            font-size: 26px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        /* --- Customer Inputs (Rows aligned) --- */
+        .details-table {
+            width: 100%;
+            margin-bottom: 10px;
+            border-collapse: collapse;
+        }
+        .details-row {
+            display: flex;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        
+        /* Column for Name/Address */
+        .col-detail-left {
+            width: 65%;
+            display: flex;
+            align-items: flex-end;
+            padding-right: 20px;
+        }
+        
+        /* Column for Date/Tel No */
+        .col-detail-right {
+            width: 35%;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .input-label {
+            white-space: nowrap;
+            margin-right: 5px;
+            font-weight: bold;
+            font-size: 15px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        input[type="text"] {
+            border: none;
+            border-bottom: 2px dashed #444;
+            background: transparent;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            color: #000080;
+            padding: 0 5px;
+            outline: none;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        /* --- Grid System --- */
+        :root {
+            /* Fixed widths to ensure vertical line alignment across separate blocks */
+            --grid-left: 78%; 
+            --grid-right: 22%;
+        }
+
+        /* Style for the Rounded "Pill" Rows */
+        .rounded-grid-row {
+            border: 2px solid #000;
+            border-radius: 25px; /* Fully rounded ends */
+            height: 45px;
+            display: flex;
+            overflow: hidden; /* clip contents */
+            margin-bottom: 6px; /* Space between rows */
+        }
+
+        /* Style for the Square Block (Desc/Total) */
+        .square-grid-block {
+            border: 2px solid #000;
+            /* No border radius */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Inner Layout for Grid Rows */
+        .panel-left {
+            width: var(--grid-left);
+            border-right: 2px solid #000; /* Vertical Line */
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            padding-right: 10px;
+            box-sizing: border-box;
+        }
+
+        .panel-right {
+            width: var(--grid-right);
+            display: flex;
+            align-items: center;
+        }
+
+        /* Labels inside grid */
+        .grid-lbl-start {
+            font-weight: 900;
+            font-size: 18px;
+            text-transform: uppercase;
+            margin-right: 10px;
+        }
+
+        .grid-lbl-end {
+            font-weight: 900;
+            font-size: 18px;
+            text-transform: uppercase;
+            margin-left: auto; /* Pushes to right */
+            margin-right: 5px; /* Space before vertical line */
+        }
+
+        .clean-input {
+            width: 100%;
+            height: 100%;
+            border: none !important;
+            background: transparent;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            color: #000080;
+            padding-left: 10px;
+        }
+
+        /* Description Rows */
+        .desc-row {
+            display: flex;
+            height: 35px;
+            border-bottom: 2px solid #000;
+        }
+        .desc-row:last-child {
+            border-bottom: none; /* For the last item inside container */
+        }
+
+        /* Checklist */
+        .checklist-container {
+            display: flex;
+            align-items: center;
+        }
+        .check-item {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+            font-weight: 900;
+            font-size: 14px;
+        }
+        .box-square {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #000;
+            margin-left: 3px;
+            cursor: pointer;
+            text-align: center;
+            line-height: 20px;
+            font-size: 16px;
+        }
+
+        /* --- Footer --- */
+        .footer-terms {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 10px;
+            line-height: 1.25;
+            font-weight: 700;
+        }
+        .col-terms { width: 48%; }
+
+        /* Controls */
+        .controls { margin-top: 20px; }
+        button {
+            padding: 12px 24px;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover { background-color: #1a252f; }
+
+    </style>
+</head>
+<body>
+
+    <div class="slip-container" id="repair-slip">
+        
+        <!-- Header -->
+        <div class="header-section">
+            <!-- Box Content -->
+            <div class="header-box">
+                <div class="header-title-row">
+                    <h1>HAMZA CELL & COMPUTERS</h1>
+                    <div class="sub-title">Cellphones And Laptop Repairs & Accessories</div>
+                </div>
+                <div class="header-info-row">
+                    <div class="info-left">
+                        Shop No: 3 Pick N Pay Complex<br>
+                        Oxford Street<br>
+                        Southern Wood<br>
+                        East London
+                    </div>
+                    <div class="info-right">
+                        <div class="phone-text">Shop No: 067 961 0666</div>
+                        <div class="phone-text">Whatsapp No: 067 226 3344</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Outside Side Content -->
+            <div class="header-side">
+                <div class="repair-badge">REPAIR SLIP</div>
+                <div class="stamp-number">5581</div>
+            </div>
+        </div>
+
+        <!-- Customer Details: Aligned Rows -->
+        <div class="details-table">
+            <!-- Row 1 -->
+            <div class="details-row">
+                <div class="col-detail-left">
+                    <div class="input-label">Name:</div>
+                    <input type="text">
+                </div>
+                <div class="col-detail-right">
+                    <div class="input-label" style="width: 60px;">Date:</div>
+                    <input type="text" id="date-field">
+                </div>
+            </div>
+            <!-- Row 2 -->
+            <div class="details-row">
+                <div class="col-detail-left">
+                    <div class="input-label">Address:</div>
+                    <input type="text">
+                </div>
+                <div class="col-detail-right">
+                    <div class="input-label" style="width: 60px;">Tel No:</div>
+                    <input type="text">
+                </div>
+            </div>
+        </div>
+
+        <!-- GRID SYSTEM -->
+
+        <!-- 1. Rounded Row: FAULT / MODEL -->
+        <div class="rounded-grid-row">
+            <div class="panel-left">
+                <div class="grid-lbl-start">FAULT:</div>
+                <input type="text" style="border:none; border-bottom: 2px dashed #ccc; width: 50%;">
+                
+                <!-- MODEL on left of line -->
+                <div class="grid-lbl-end">MODEL:</div>
+            </div>
+            <div class="panel-right">
+                <input type="text" class="clean-input">
+            </div>
+        </div>
+
+        <!-- 2. Rounded Row: IMEI / MAKE -->
+        <div class="rounded-grid-row">
+            <div class="panel-left">
+                <div class="grid-lbl-start">IMEI No:</div>
+                <input type="text" style="border:none; border-bottom: 2px dashed #ccc; width: 50%;">
+                
+                <!-- MAKE on left of line -->
+                <div class="grid-lbl-end">MAKE:</div>
+            </div>
+            <div class="panel-right">
+                <input type="text" class="clean-input">
+            </div>
+        </div>
+
+        <!-- 3. Square Block: Description + Total -->
+        <div class="square-grid-block">
+            <!-- Desc Line 1 -->
+            <div class="desc-row">
+                <div class="panel-left">
+                    <input type="text" class="clean-input">
+                </div>
+                <div class="panel-right">
+                    <input type="text" class="clean-input" style="border-bottom: 2px solid #000;">
+                </div>
+            </div>
+            <!-- Desc Line 2 -->
+            <div class="desc-row">
+                <div class="panel-left">
+                    <input type="text" class="clean-input">
+                </div>
+                <div class="panel-right">
+                    <input type="text" class="clean-input" style="border-bottom: 2px solid #000;">
+                </div>
+            </div>
+            <!-- Desc Line 3 -->
+            <div class="desc-row">
+                <div class="panel-left">
+                    <input type="text" class="clean-input">
+                </div>
+                <div class="panel-right">
+                    <input type="text" class="clean-input" style="border-bottom: 2px solid #000;">
+                </div>
+            </div>
+
+            <!-- Checkbox + Total Row -->
+            <div class="desc-row" style="height: 40px; border-bottom: none;">
+                <div class="panel-left">
+                    <div class="checklist-container">
+                        <div class="check-item">SIM <div class="box-square" onclick="toggleX(this)"></div></div>
+                        <div class="check-item">BATTERY <div class="box-square" onclick="toggleX(this)"></div></div>
+                        <div class="check-item">M/CARD <div class="box-square" onclick="toggleX(this)"></div></div>
+                        <div class="check-item">BACK COVER <div class="box-square" onclick="toggleX(this)"></div></div>
+                    </div>
+
+                    <!-- TOTAL on left of line -->
+                    <div class="grid-lbl-end">TOTAL</div>
+                </div>
+                <div class="panel-right">
+                    <input type="text" class="clean-input">
+                </div>
+            </div>
+        </div>
+
+        <!-- Terms Footer -->
+        <div class="footer-terms">
+            <div class="col-terms">
+                (1) No Cash Refund<br>
+                (2) All repairs not collected within 30 days will be sold to defray costs.<br>
+                (3) No guarantee on water damaged, LCD Network & Software Problems<br>
+                (4) We are NOT responsible for fire, theft or damage during repairs<br>
+                (5) Items shall only be released upon presentation of this slip
+            </div>
+            <div class="col-terms">
+                <div style="text-align: right; margin-bottom: 2px;">PRINTER: 073 333 6308</div>
+                (6) All Repairs Are Left At Owner's Risk<br>
+                (7) Not responsible if IMEI differs or is blacklisted or for loss of data during repairs.<br>
+                (8) Repairs under R200 will be carried out automatically<br>
+                (9) No Guarantee For Lcd & Touch
+            </div>
+        </div>
+
+        <div style="margin-top: 15px; font-weight: bold; font-size: 14px;">
+            Signature..........................................................
+        </div>
+
+    </div>
+
+    <div class="controls">
+        <button onclick="savePDF()">Save as PDF</button>
+    </div>
+
+    <script>
+        const d = new Date();
+        document.getElementById('date-field').value = d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear();
+
+        function toggleX(el) {
+            el.innerHTML = el.innerHTML === "X" ? "" : "X";
+        }
+
+        function savePDF() {
+            const element = document.getElementById('repair-slip');
+            const opt = {
+                margin: 0,
+                filename: 'repair-slip.pdf',
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'px', format: [890, 800], orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
+</body>
+</html>
